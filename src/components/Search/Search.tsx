@@ -1,19 +1,38 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { SEARCH_REPOSITORIES } from 'apollo/git.ts';
 import { useQuery } from '@apollo/client';
-import { useDebounce } from 'hooks/hooks.ts';
+import { useAppDispatch, useAppSelector, useDebounce } from 'hooks/hooks.ts';
 import styles from './Search.module.css';
+import {
+  setRepositories,
+  setSearchQuery,
+  setStep,
+  setTotalPages,
+} from 'store/search/searchSlice.ts';
+import Pagination from 'components/Pagination/Pagination.tsx';
+import { Link } from 'react-router-dom';
+import { setOwnerName, setRepoName } from 'store/card/cardSlice.ts';
 const Search = () => {
-  const [search, setSearch] = useState('');
+  const { repositories, searchQuery, currentPage, reposCount, totalPages, step } = useAppSelector(
+    (state) => state.search,
+  );
+
+  const dispatch = useAppDispatch();
+
   const [after, setAfter] = useState<string | null>(null);
-  const [repositories, setRepositories] = useState([]);
-  const debouncedSearch = useDebounce(search);
+
+  const debouncedSearch = useDebounce(searchQuery);
   const { loading, error, data, fetchMore } = useQuery(SEARCH_REPOSITORIES, {
     variables: { query: debouncedSearch, first: 10, after },
     skip: !debouncedSearch,
   });
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
+    dispatch(setSearchQuery(e.target.value));
+  };
+
+  const onLinkClick = (name: string, repoName: string) => {
+    dispatch(setOwnerName(name));
+    dispatch(setRepoName(repoName));
   };
 
   const loadMore = async () => {
@@ -23,22 +42,26 @@ const Search = () => {
           after: data.search.pageInfo.endCursor,
         },
       });
-
+      console.log(newData);
       if (newData && newData.search && newData.search.repos) {
-        setRepositories((prevRepos) => [...prevRepos, ...newData.search.repos]);
+        dispatch(setRepositories(newData.search.repos));
         setAfter(newData.search.pageInfo.endCursor);
       }
     }
   };
 
+  dispatch(setTotalPages(Math.ceil((data?.search?.repositoryCount || 0) / 10)));
+
   useEffect(() => {
     if (data && data.search && data.search.repos) {
-      if (!after) {
-        setRepositories(data.search.repos);
+      /*if (!after) {
+        dispatch(setRepositories(data.search.repos))
+
       } else {
+        dispatch()
         setRepositories((prevRepos) => [...prevRepos, ...data.search.repos]);
-      }
-      console.log(data);
+      }*/
+      dispatch(setRepositories(data.search.repos));
     }
   }, [data]);
 
@@ -46,7 +69,7 @@ const Search = () => {
     <div>
       <input
         type="text"
-        value={search}
+        value={searchQuery}
         onChange={handleChange}
       />
       {loading && <p>Loading...</p>}
@@ -60,6 +83,12 @@ const Search = () => {
             <a href={repo.url}>{repo.name}</a>
             <span>{repo.stargazerCount} звезд</span>
             <span>{new Date(repo.updatedAt).toLocaleString()}</span>
+            <Link
+              onClick={() => onLinkClick(repo.owner.login, repo.name)}
+              to="/info"
+            >
+              Подробнее
+            </Link>
           </li>
         ))}
       </ul>
@@ -71,6 +100,7 @@ const Search = () => {
           Load More
         </button>
       )}
+      <Pagination />
     </div>
   );
 };

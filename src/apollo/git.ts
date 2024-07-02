@@ -17,7 +17,31 @@ export const SEARCH_REPOSITORIES = gql`
             url
             updatedAt
             stargazerCount
+            owner {
+              login
+            }
           }
+        }
+      }
+    }
+  }
+`;
+
+export const REPOSITORY_INFO = gql`
+  query GetRepositoryDetails($owner: String!, $name: String!) {
+    repository(owner: $owner, name: $name) {
+      name
+      stargazerCount
+      updatedAt
+      description
+      owner {
+        login
+        avatarUrl
+        url
+      }
+      languages(first: 10) {
+        nodes {
+          name
         }
       }
     }
