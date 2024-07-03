@@ -7,14 +7,14 @@ import { setRepositories, setSearchQuery, setTotalPages } from 'store/search/sea
 import Pagination from 'components/Pagination/Pagination.tsx';
 import { Link } from 'react-router-dom';
 import { setOwnerName, setRepoName } from 'store/card/cardSlice.ts';
-import { showRepositories } from 'utils/utils.ts';
+import { paginateHelper, showRepositories } from 'utils/utils.ts';
 const Search = () => {
   const { repositories, searchQuery, currentPage } = useAppSelector((state) => state.search);
 
   const dispatch = useAppDispatch();
 
   const [after, setAfter] = useState<string | null>(null);
-  const [startCursor, setStartCursor] = useState<string | null>(null);
+  const [startCursors, setStartCursors] = useState<Array<string | null>>([null]);
   const [hasPrev, setHasPrev] = useState(false);
   const [hasNext, setHasNext] = useState(false);
   const debouncedSearch = useDebounce(searchQuery);
@@ -32,48 +32,33 @@ const Search = () => {
   };
 
   const loadMore = () => {
-    /*if (data.search.pageInfo.hasNextPage) {
-      const { data: newData } = await fetchMore({
-        variables: {
-          after: data.search.pageInfo.endCursor,
-        },
-      });
-
-      if (newData && newData.search && newData.search.repos) {
-        dispatch(setRepositories(newData.search.repos));
-        setAfter(newData.search.pageInfo.endCursor);
-      }
-    }*/
     setAfter(data.search.pageInfo.endCursor);
   };
 
   const loadPrev = () => {
-    setAfter(startCursor);
+    console.log('in loadprev');
+    console.log(data.search.pageInfo.endCursor);
+    console.log('after ', after);
+    setAfter(paginateHelper(startCursors, after));
   };
 
   dispatch(setTotalPages(Math.ceil((data?.search?.repositoryCount || 0) / 10)));
 
   useEffect(() => {
     if (data && data.search && data.search.repos) {
-      /*if (!after) {
-        dispatch(setRepositories(data.search.repos))
-
-      } else {
-        dispatch()
-        setRepositories((prevRepos) => [...prevRepos, ...data.search.repos]);
-      }*/
-
+      setStartCursors((prev) => {
+        const cursor = data.search.pageInfo.endCursor;
+        if (prev.includes(cursor)) {
+          return prev;
+        } else {
+          return [...prev, cursor];
+        }
+      });
       setHasPrev(data.search.pageInfo.hasPreviousPage);
       setHasNext(data.search.pageInfo.hasNextPage);
       dispatch(setRepositories(data.search.repos));
     }
   }, [data]);
-
-  useEffect(() => {
-    if (data && data.search && data.search.repos) {
-      setStartCursor(data.search.pageInfo.startCursor);
-    }
-  }, []);
 
   return (
     <div>
@@ -102,14 +87,6 @@ const Search = () => {
           </li>
         ))}
       </ul>
-      {data && data.search.pageInfo.hasNextPage && (
-        <button
-          onClick={loadMore}
-          disabled={loading}
-        >
-          Load More
-        </button>
-      )}
       <Pagination
         loadMore={loadMore}
         loadPrev={loadPrev}

@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from 'hooks/hooks.ts';
 import { setCurrentPage, setPartOfPages } from 'store/search/searchSlice.ts';
 import { FC } from 'react';
+import styles from './Pagination.module.css';
 
 type Props = {
   loadMore: () => void;
@@ -24,36 +25,42 @@ const Pagination: FC<Props> = ({ loadMore, hasNext, hasPrev, loadPrev }) => {
   const handleClickPrev = () => {
     loadPrev();
     dispatch(setPartOfPages(partOfPages - 5));
+    dispatch(setCurrentPage(partOfPages - 4));
   };
 
   const handleClickNext = () => {
     loadMore();
     dispatch(setPartOfPages(partOfPages + 5));
+    dispatch(setCurrentPage(partOfPages + 6));
   };
 
   return (
-    <div>
-      <button
-        disabled={!hasPrev}
-        onClick={handleClickPrev}
-      >
-        ←
-      </button>
-      {array.map((m) => (
-        <button
-          key={m}
-          style={{ color: currentPage === m ? 'red' : '' }}
-          onClick={() => handleClick(m)}
-        >
-          {m}
-        </button>
-      ))}
-      <button
-        disabled={!hasNext}
-        onClick={handleClickNext}
-      >
-        →
-      </button>
+    <div className={styles.wrapper}>
+      {!!totalPages && (
+        <>
+          <button
+            disabled={!hasPrev}
+            onClick={handleClickPrev}
+          >
+            ←
+          </button>
+          {array.map((m) => (
+            <button
+              key={m}
+              style={{ color: currentPage === m ? 'red' : '' }}
+              onClick={() => handleClick(m)}
+            >
+              {m}
+            </button>
+          ))}
+          <button
+            disabled={!hasNext}
+            onClick={handleClickNext}
+          >
+            →
+          </button>
+        </>
+      )}
     </div>
   );
 };
