@@ -7,7 +7,7 @@ interface SearchState {
   currentPage: number;
   reposCount: number;
   totalPages: number;
-  step: number;
+  partOfPages: number;
 }
 
 const initialState: SearchState = {
@@ -16,7 +16,7 @@ const initialState: SearchState = {
   currentPage: 1,
   reposCount: 0,
   totalPages: 0,
-  step: 0,
+  partOfPages: 0,
 };
 
 export const searchSlice = createSlice({
@@ -38,17 +38,19 @@ export const searchSlice = createSlice({
     setTotalPages: (state, action: PayloadAction<number>) => {
       state.totalPages = action.payload;
     },
-    setStep: (state, action: PayloadAction<number>) => {
-      state.step = action.payload;
+    setPartOfPages: (state, action: PayloadAction<number>) => {
+      state.partOfPages = action.payload;
     },
   },
 });
 
 export const {
+  setPartOfPages,
   setRepositories,
   setSearchQuery,
   setCurrentPage,
   setReposCount,
   setTotalPages,
-  setStep,
 } = searchSlice.actions;
+
+export default searchSlice.reducer;

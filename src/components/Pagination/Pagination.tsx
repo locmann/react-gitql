@@ -1,18 +1,44 @@
 import { useAppDispatch, useAppSelector } from 'hooks/hooks.ts';
-import { setCurrentPage, setStep } from 'store/search/searchSlice.ts';
+import { setCurrentPage, setPartOfPages } from 'store/search/searchSlice.ts';
+import { FC } from 'react';
 
-const Pagination = () => {
-  const { currentPage, totalPages } = useAppSelector((state) => state.search);
+type Props = {
+  loadMore: () => void;
+  loadPrev: () => void;
+  hasPrev: boolean;
+  hasNext: boolean;
+};
+
+const Pagination: FC<Props> = ({ loadMore, hasNext, hasPrev, loadPrev }) => {
+  const { currentPage, totalPages, repositories, partOfPages } = useAppSelector(
+    (state) => state.search,
+  );
   const dispatch = useAppDispatch();
-  const array = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const pagesNumber = Math.ceil((repositories.length || 0) / 10);
+  const array = Array.from({ length: pagesNumber }, (_, i) => i + 1 + partOfPages);
 
   const handleClick = (page: number) => {
-    dispatch(setStep(page - currentPage));
     dispatch(setCurrentPage(page));
+  };
+
+  const handleClickPrev = () => {
+    loadPrev();
+    dispatch(setPartOfPages(partOfPages - 5));
+  };
+
+  const handleClickNext = () => {
+    loadMore();
+    dispatch(setPartOfPages(partOfPages + 5));
   };
 
   return (
     <div>
+      <button
+        disabled={!hasPrev}
+        onClick={handleClickPrev}
+      >
+        ←
+      </button>
       {array.map((m) => (
         <button
           key={m}
@@ -22,6 +48,12 @@ const Pagination = () => {
           {m}
         </button>
       ))}
+      <button
+        disabled={!hasNext}
+        onClick={handleClickNext}
+      >
+        →
+      </button>
     </div>
   );
 };
