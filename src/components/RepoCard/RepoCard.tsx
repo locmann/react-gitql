@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from 'hooks/hooks.ts';
 import { useQuery } from '@apollo/client';
 import { REPOSITORY_INFO } from 'apollo/git.ts';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import {
   setDescription,
@@ -23,8 +23,9 @@ const RepoCard = () => {
     variables: { owner: ownerName, name: repoName },
   });
 
-  console.log(data);
   const dispatch = useAppDispatch();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (data) {
@@ -41,7 +42,10 @@ const RepoCard = () => {
 
   return (
     <>
-      <h2>RepoCard</h2>
+      <div className={styles.header}>
+        <button onClick={() => navigate(-1)}>Назад</button>
+        <h2>RepoCard</h2>
+      </div>
       {loading && <p>Loading...</p>}
       {error ? (
         <p>Error: {error.message}</p>
@@ -58,10 +62,12 @@ const RepoCard = () => {
             <img
               className={styles.image}
               src={photoUrl}
+              alt="Avatar"
             />
             <Link to={url}>{ownerName}</Link>
           </div>
           <div className={styles.textWrapper}>
+            Языки:{' '}
             {languages.map((lang) => (
               <p key={lang}>{lang}</p>
             ))}

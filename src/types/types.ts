@@ -9,3 +9,9 @@ export type Repository = {
     };
   };
 };
+
+export type SavedData = {
+  cursors: Array<string | null>;
+  currentPage: number;
+  query: string;
+};

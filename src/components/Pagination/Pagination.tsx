@@ -34,6 +34,8 @@ const Pagination: FC<Props> = ({ loadMore, hasNext, hasPrev, loadPrev }) => {
     dispatch(setCurrentPage(partOfPages + 6));
   };
 
+  const isActive = (page: number) => (page === currentPage ? styles.active : '');
+
   return (
     <div className={styles.wrapper}>
       {!!totalPages && (
@@ -47,7 +49,7 @@ const Pagination: FC<Props> = ({ loadMore, hasNext, hasPrev, loadPrev }) => {
           {array.map((m) => (
             <button
               key={m}
-              style={{ color: currentPage === m ? 'red' : '' }}
+              className={isActive(m)}
               onClick={() => handleClick(m)}
             >
               {m}
