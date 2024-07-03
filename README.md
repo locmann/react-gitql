@@ -1,30 +1,41 @@
-# React + TypeScript + Vite
+## Описание
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Приложение по поиску репозиториев GitHub.
+Для получения данных используется Github GraphQL API (https://docs.github.com/ru/graphql)
 
-Currently, two official plugins are available:
+Для корректной работы необходимо добавить свой GitHub Token в .env файл
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Состав
 
-## Expanding the ESLint configuration
+1. Главная страница – список репозиториев с возможностью поиска и страницами
+2. Карточка репозитория – страница с детальной информацией по репозиторию
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Главная страница
 
-- Configure the top-level `parserOptions` property like this:
+Ключевые элементы страницы:
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-};
-```
+- `Поле для поиска` репозиториев
+- `Список репозиториев`
+- `Paginator` – список страниц
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+При введении текста в `Поле для поиска`, происходит поиск по названию среди всех репозиториев Github и выводится его результат в `Список репозиториев` ниже.
+Структура элементов списка:
+`[Название репозитория]` - `[кол-во звёзд на github]` - `[дата последнего коммита]` - `[ссылка на Github]`
+Внизу страницы есть `Paginator` вида [1, 2, 3, 4, 5].
+При клике на вторую страницу показываются репозитории с 11 по 20. При клике на третью страницу показываются репозитории с 21 по 30 … и т.д.
+
+При перезагрузке страницы состояние выбранных фильтров (поиска и страницы) сохраняется.
+При клике на название репозитория происходит переход на `Карточку репозитория`.
+
+### Карточка репозитория
+
+Карточка имеет следующую структуру:
+- [`Название репозитория`] - [`кол-во звёзд на github`] - [`дата последнего коммита`]
+- [`Фото владельца репозитория, если есть`] - [`Nickname владельца репозитория с ссылкой на него`]
+- [`Список используемых языков в репозитории`]
+- [`Краткое описание репозитория`]
+
+### Дополнительно
+
+- Задеплоить
+- "Причесать" код и стиль
