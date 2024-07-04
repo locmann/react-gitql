@@ -20,13 +20,13 @@ const RepoCard = () => {
   useEffect(() => {
     if (data) {
       const cardData: CardState = {
-        ownerName: String(data.repository?.owner?.login.toString()),
-        repoName: String(data.repository?.name.toString()),
-        description: String(data.repository?.description.toString()),
+        ownerName: String(data.repository?.owner?.login),
+        repoName: String(data.repository?.name),
+        description: String(data.repository?.description),
         languages: data.repository?.languages?.nodes?.map((lang) => String(lang?.name)) || [],
-        lastCommitDate: String(data.repository?.updatedAt.toString()),
-        photoUrl: String(data.repository?.owner?.avatarUrl.toString()),
-        stars: Number(data.repository?.stargazerCount.toString()),
+        lastCommitDate: String(data.repository?.updatedAt),
+        photoUrl: String(data.repository?.owner?.avatarUrl),
+        stars: Number(data.repository?.stargazerCount),
         url: String(data.repository?.owner?.url),
       };
       dispatch(setAllData(cardData));

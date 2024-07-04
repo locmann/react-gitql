@@ -19,6 +19,7 @@ export const paginateHelper = (cursors: Array<string | null>, currentCursor: str
   if (index !== -1) {
     return cursors[index - 1];
   }
+  return null;
 };
 
 export const saveToLS = (cursors: Array<string | null>, currentPage: number, query: string) => {
@@ -45,19 +46,27 @@ export const getCurrentPageFromLS = (cursors: Array<string | null>, currentPage:
 };
 
 export const clearRepositoryData = (array: ResponseReposType): Repository[] => {
-  return array.map((res) => {
-    if (res?.repo?.__typename === 'Repository') {
-      return {
-        repo: {
-          name: res.repo.name || '',
-          url: res.repo.url.toString() || '',
-          updatedAt: res.repo.updatedAt.toString() || '',
-          stargazerCount: res.repo.stargazerCount.toString() || '',
-          owner: {
-            login: res.repo.owner.login || '',
-          },
-        },
-      };
-    }
-  });
+  if (array) {
+    return array
+      .map((res) => {
+        if (res?.repo?.__typename === 'Repository') {
+          if (res.repo) {
+            return {
+              repo: {
+                name: res.repo.name || '',
+                url: res.repo.url.toString() || '',
+                updatedAt: res.repo.updatedAt.toString() || '',
+                stargazerCount: res.repo.stargazerCount.toString() || '',
+                owner: {
+                  login: res.repo.owner.login || '',
+                },
+              },
+            };
+          }
+        }
+      })
+      .filter((repo): repo is Repository => repo !== undefined);
+  } else {
+    return [];
+  }
 };
