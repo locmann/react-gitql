@@ -1,4 +1,4 @@
-import { Repository, SavedData } from 'types/types.ts';
+import { Repository, ResponseReposType, SavedData } from 'types/types.ts';
 
 export const showRepositories = (repositories: Repository[], page: number): Repository[] => {
   const mod = page % 5;
@@ -41,6 +41,23 @@ export const loadFromLS = () => {
 
 export const getCurrentPageFromLS = (cursors: Array<string | null>, currentPage: number) => {
   const index = Math.floor(currentPage / 5);
-  console.log(index);
   return cursors[index];
+};
+
+export const clearRepositoryData = (array: ResponseReposType): Repository[] => {
+  return array.map((res) => {
+    if (res?.repo?.__typename === 'Repository') {
+      return {
+        repo: {
+          name: res.repo.name || '',
+          url: res.repo.url.toString() || '',
+          updatedAt: res.repo.updatedAt.toString() || '',
+          stargazerCount: res.repo.stargazerCount.toString() || '',
+          owner: {
+            login: res.repo.owner.login || '',
+          },
+        },
+      };
+    }
+  });
 };

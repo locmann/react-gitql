@@ -15,3 +15,28 @@ export type SavedData = {
   currentPage: number;
   query: string;
 };
+
+export type ResponseReposType = Array<{
+  __typename?: 'SearchResultItemEdge';
+  repo?:
+    | { __typename?: 'App' }
+    | { __typename?: 'Discussion' }
+    | { __typename?: 'Issue' }
+    | {
+        __typename?: 'MarketplaceListing';
+      }
+    | { __typename?: 'Organization' }
+    | { __typename?: 'PullRequest' }
+    | {
+        __typename?: 'Repository';
+        name: string;
+        url: any;
+        updatedAt: any;
+        stargazerCount: number;
+        owner:
+          | { __typename?: 'Organization'; login: string }
+          | { __typename?: 'User'; login: string };
+      }
+    | { __typename?: 'User' }
+    | null;
+} | null>;

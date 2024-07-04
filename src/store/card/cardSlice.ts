@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface CardState {
+export interface CardState {
   repoName: string;
   stars: number;
   lastCommitDate: string;
@@ -32,34 +32,10 @@ export const cardSlice = createSlice({
     setRepoName: (state, action: PayloadAction<string>) => {
       state.repoName = action.payload;
     },
-    setDescription: (state, action: PayloadAction<string>) => {
-      state.description = action.payload;
-    },
-    setLanguages: (state, action: PayloadAction<string[]>) => {
-      state.languages = action.payload;
-    },
-    setLastCommitDate: (state, action: PayloadAction<string>) => {
-      state.lastCommitDate = action.payload;
-    },
-    setPhotoUrl: (state, action: PayloadAction<string>) => {
-      state.photoUrl = action.payload;
-    },
-    setStars: (state, action: PayloadAction<number>) => {
-      state.stars = action.payload;
-    },
-    setUrl: (state, action: PayloadAction<string>) => {
-      state.url = action.payload;
+    setAllData: (state, action: PayloadAction<CardState>) => {
+      return { ...state, ...action.payload };
     },
   },
 });
 
-export const {
-  setOwnerName,
-  setRepoName,
-  setDescription,
-  setLastCommitDate,
-  setStars,
-  setPhotoUrl,
-  setLanguages,
-  setUrl,
-} = cardSlice.actions;
+export const { setOwnerName, setRepoName, setAllData } = cardSlice.actions;

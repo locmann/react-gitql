@@ -14,6 +14,7 @@ import Pagination from 'components/Pagination/Pagination.tsx';
 import { Link } from 'react-router-dom';
 import { setOwnerName, setRepoName } from 'store/card/cardSlice.ts';
 import {
+  clearRepositoryData,
   getCurrentPageFromLS,
   loadFromLS,
   paginateHelper,
@@ -32,7 +33,6 @@ const Search = () => {
   const debouncedSearch = useDebounce(searchQuery);
   const { loading, error, data } = useQuery(SEARCH_REPOSITORIES, {
     variables: { query: debouncedSearch, first: 50, after },
-    skip: !debouncedSearch,
   });
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     dispatch(setSearchQuery(e.target.value));
@@ -44,34 +44,43 @@ const Search = () => {
   };
 
   const loadMore = () => {
-    setAfter(data.search.pageInfo.endCursor);
+    if (data?.search.pageInfo.endCursor) {
+      setAfter(data.search.pageInfo.endCursor);
+    }
   };
 
   const loadPrev = () => {
-    setAfter(paginateHelper(startCursors, after));
+    const prevAfter = paginateHelper(startCursors, after);
+    setAfter(prevAfter);
   };
 
   dispatch(setTotalPages(Math.ceil((data?.search?.repositoryCount || 0) / 10)));
 
   useEffect(() => {
-    if (data && data.search && data.search.repos) {
+    if (data?.search?.repos) {
       setStartCursors((prev) => {
-        const cursor = data.search.pageInfo.endCursor;
-        if (prev.includes(cursor)) {
-          return prev;
-        } else {
-          return [...prev, cursor];
+        if (data.search.pageInfo.endCursor) {
+          const cursor = data.search.pageInfo.endCursor;
+          if (prev.includes(cursor)) {
+            return prev;
+          } else {
+            return [...prev, cursor];
+          }
         }
+        return prev;
       });
       setHasPrev(data.search.pageInfo.hasPreviousPage);
       setHasNext(data.search.pageInfo.hasNextPage);
-      dispatch(setRepositories(data.search.repos));
+      if (data.search.repos) {
+        dispatch(setRepositories(clearRepositoryData(data.search.repos)));
+      }
     }
   }, [data]);
 
   useEffect(() => {
     if (repositories.length > 0) {
       saveToLS(startCursors, currentPage, debouncedSearch);
+      console.log('saved in ls');
     }
   }, [currentPage, startCursors, debouncedSearch]);
 
@@ -86,6 +95,15 @@ const Search = () => {
       setAfter(getCurrentPageFromLS(lsData.cursors, lsData.currentPage));
     }
   }, []);
+
+  useEffect(() => {
+    console.log('in debounce effect', debouncedSearch);
+
+    dispatch(setCurrentPage(1));
+    dispatch(setPartOfPages(0));
+    setStartCursors([null]);
+    setAfter(null);
+  }, [debouncedSearch]);
 
   return (
     <div>

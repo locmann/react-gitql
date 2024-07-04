@@ -3,22 +3,12 @@ import { useQuery } from '@apollo/client';
 import { REPOSITORY_INFO } from 'apollo/git.ts';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import {
-  setDescription,
-  setLanguages,
-  setLastCommitDate,
-  setOwnerName,
-  setPhotoUrl,
-  setRepoName,
-  setStars,
-  setUrl,
-} from 'store/card/cardSlice.ts';
+import { CardState, setAllData } from 'store/card/cardSlice.ts';
 import styles from './RepoCard.module.css';
 
 const RepoCard = () => {
   const { ownerName, repoName, description, languages, lastCommitDate, photoUrl, stars, url } =
     useAppSelector((state) => state.card);
-
   const { loading, error, data } = useQuery(REPOSITORY_INFO, {
     variables: { owner: ownerName, name: repoName },
   });
@@ -29,14 +19,17 @@ const RepoCard = () => {
 
   useEffect(() => {
     if (data) {
-      dispatch(setOwnerName(data.repository.owner.login));
-      dispatch(setRepoName(data.repository.name));
-      dispatch(setDescription(data.repository.description));
-      dispatch(setLanguages(data.repository.languages.nodes.map((lang) => lang.name)));
-      dispatch(setLastCommitDate(data.repository.updatedAt));
-      dispatch(setPhotoUrl(data.repository.owner.avatarUrl));
-      dispatch(setStars(data.repository.stargazerCount));
-      dispatch(setUrl(data.repository.owner.url));
+      const cardData: CardState = {
+        ownerName: String(data.repository?.owner?.login.toString()),
+        repoName: String(data.repository?.name.toString()),
+        description: String(data.repository?.description.toString()),
+        languages: data.repository?.languages?.nodes?.map((lang) => String(lang?.name)) || [],
+        lastCommitDate: String(data.repository?.updatedAt.toString()),
+        photoUrl: String(data.repository?.owner?.avatarUrl.toString()),
+        stars: Number(data.repository?.stargazerCount.toString()),
+        url: String(data.repository?.owner?.url),
+      };
+      dispatch(setAllData(cardData));
     }
   }, [data]);
 
